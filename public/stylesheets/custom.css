@@ -1,0 +1,526 @@
+/* Base styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #fefbfb;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    padding-top: 80px; /* Adjust this value based on the height of your navbar and hr element */
+}
+
+/* Header section */
+.header-section {
+    width: 100%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: #fefbfb;
+    padding: 0 20px;
+}
+
+.header-section h1 {
+    font-size: 3em;
+    color: #e12528;
+    margin-bottom: 20px;
+    font-weight: 570;
+}
+
+.header-section p {
+    font-size: 1.2em;
+    color: #272626;
+    font-weight: 450;
+}
+
+.text-container {
+    width: 80%;
+    max-width: 800px;
+    margin: auto;
+}
+
+.services-heading {
+    font-size: 2em;
+    color: #e12528;
+    text-align: left;
+    margin: 20px 0;
+}
+
+.container {
+    animation: slide-in 1s ease-out;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+.fade-in-delay {
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+form.d-inline {
+    display: inline-block;
+}
+
+.btn-custom {
+    background-color: #e12528;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-custom:hover {
+    background-color: #e24a4d;
+    transform: translateY(-3px);
+    color: #fff;
+}
+
+.btn-link {
+    background-color: transparent;
+    color: #e12528;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    color: #e24a4d;
+    text-decoration: underline;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-3px);
+    color: #fff;
+}
+
+.features {
+    background-color: #fefbfb;
+    padding: 50px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.card {
+    background-color: #fcf9f9;
+    color: #353434;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+    padding: 10px;
+    flex: 1 1 100%; /* Adjust width to make the cards smaller */
+    box-sizing: border-box;
+    min-height: 60px; /* Adjust height to make the cards smaller */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background-color: #e4e4e4;
+}
+
+.card-title {
+    color: #ff2226;
+    font-size: 1em; /* Adjust font size */
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.card-link:hover {
+    color: #1A1F71;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 0; /* Ensure padding is not overridden */
+    background-color: transparent; /* Ensure no background color overrides */
+    border-top: none; /* Ensure no border overrides */
+}
+
+.card-footer .btn-custom {
+    margin-bottom: 0; /* Ensure button is aligned correctly */
+    margin-top: 0; /* Ensure no extra margin is applied */
+    width: auto; /* Ensure button does not take full width */
+}
+
+/* Show page specific styles */
+.show-card {
+    background-color: #fcf9f9;
+    color: #353434;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.show-card-header {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.show-card-body {
+    padding: 15px;
+}
+
+.show-card:hover {
+    transform: none;
+}
+
+footer {
+    background-color: #333;
+    padding: 20px 0;
+    color: #e0e0e0;
+    text-align: center;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    margin: 0;
+}
+
+.input-group {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.input-group .form-control {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 30px 30px 30px 30px;
+    padding: 10px 20px;
+}
+
+.input-group .input-group-append .btn {
+    background-color: #e12528;
+    border: none;
+    border-radius: 0 30px 30px 0;
+    padding: 10px 20px;
+    color: #fff;
+}
+
+.input-group .input-group-append .btn:hover {
+    background-color: #c0392b;
+    color: #fff;
+}
+
+#autocomplete-results {
+    position: absolute;
+    width: 100%;
+    background-color: #fefbfb;
+    border: 1px solid #ced4da;
+    border-radius: 0 0 10px 10px;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+    border-bottom: 1px solid #ced4da;
+}
+
+.suggestion-item:hover {
+    background-color: #e0e0e0;
+}
+
+/* Custom navbar styles */
+.custom-navbar {
+    background-color: #fefbfb !important;
+    color: #333 !important;
+    animation: fadeIn 1s ease-in-out !important;
+    position: fixed; /* Fix the position of the navbar */
+    top: 0; /* Align it to the top */
+    width: 100%; /* Full width */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+}
+
+.custom-navbar .nav-link {
+    color: #333 !important;
+    font-weight: 580;
+    transition: color 0.3s ease;
+}
+
+.custom-navbar .navbar-brand {
+    color: #ff2226;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.custom-navbar .nav-link:hover {
+    color: #c46364 !important;
+}
+
+.custom-navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.custom-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 0, 0, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
+}
+
+/* Sticky hr element */
+.custom-navbar hr {
+    position: fixed; /* Fix the position of the hr element */
+    top: 40px; /* Adjust this value based on the height of your navbar */
+    width: 100%; /* Full width */
+    border: none;
+    border-top: 1px solid #333; /* Adjust the style as needed */
+    z-index: 999; /* Ensure it stays below the navbar but above other content */
+}
+
+/* Optimizer specific styles */
+.optimizer-container {
+    padding-top: 100px; /* Adjust this value based on the height of your navbar and hr element */
+}
+
+.scheduler-heading {
+    font-size: 2.5em;
+    color: #221d1c;
+    margin-bottom: 20px;
+    font-weight: 550;
+}
+
+.scheduler-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.scheduler-button {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.scheduler-button:hover {
+    background-color: #c0392b;
+}
+
+.card-title {
+    color: #ff2226;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-rating {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+#schedule-result {
+    margin-top: 20px;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.card-text {
+    margin-bottom: 10px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 0; /* Ensure padding is not overridden */
+    background-color: transparent; /* Ensure no background color overrides */
+    border-top: none; /* Ensure no border overrides */
+}
+
+.card-footer .btn-custom {
+    margin-bottom: 0; /* Ensure button is aligned correctly */
+    margin-top: 0; /* Ensure no extra margin is applied */
+    width: auto; /* Ensure button does not take full width */
+}
+/* Schedule specific styles */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr); /* Time column and five days of the week */
+    grid-template-rows: 50px repeat(24, 1fr); /* Header row and 24 hours (8 AM to 8 PM) */
+    gap: 1px;
+    background-color: #ccc;
+    width: 100%;
+    position: relative;
+}
+
+.schedule-header {
+    background-color: #f1f1f1;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+}
+
+.schedule-time {
+    padding: 5px;
+    text-align: center;
+    background-color: #f1f1f1 !important; /* Ensure the time column has a light grey background */
+    border-right: 1px solid #ddd;
+    font-weight: bold;
+    grid-column: 1; /* Fix the time column */
+    grid-row: span 2; /* Ensure each time block spans 2 rows (for half-hour intervals) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule-course {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    background-color: #e12528; /* Default color */
+    width: 100%; /* Ensure the course fills the grid cell width */
+    height: 100%; /* Ensure the course fills the grid cell height */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.schedule-course span {
+    width: 100%;
+}
+
+.schedule-course:nth-child(odd) {
+    background-color: #1abc9c;
+}
+
+.schedule-course:nth-child(even) {
+    background-color: hsl(204, 70%, 53%);
+}
+
+.schedule-course:nth-child(3n) {
+    background-color: #e74c3c;
+}
+
+.schedule-course:nth-child(4n) {
+    background-color: #9b59b6;
+}
+
+.schedule-course:nth-child(5n) {
+    background-color: #f39c12;
+}
+
+.schedule-course:nth-child(6n) {
+    background-color: #d35400;
+}
+
+.schedule-course:nth-child(7n) {
+    background-color: #2ecc71;
+}
+
+.schedule-course:nth-child(8n) {
+    background-color: #e67e22;
+}
+
+.schedule-course:nth-child(9n) {
+    background-color: #34495e;
+}
+
+.schedule-course:nth-child(10n) {
+    background-color: #e91e63;
+}
+
+.schedule-course:hover {
+    opacity: 0.8;
+}
+
+.schedule-grid > div {
+    border: 1px solid #ddd; /* Add borders to all grid cells */
+    box-sizing: border-box; /* Ensure borders do not affect cell dimensions */
+}
+
+.schedule-grid .schedule-row {
+    display: contents;
+}
+
+.schedule-grid .schedule-time {
+    grid-column: 1;
+}
+
+.schedule-grid .schedule-course {
+    grid-column: span 1;
+}
+
+/* Additional small card styles */
+.course-card {
+    height: 60px; /* Adjust height to make the cards smaller */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
