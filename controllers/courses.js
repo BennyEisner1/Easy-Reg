@@ -64,11 +64,24 @@ module.exports.delete = async (req, res) => {
 };
 
 module.exports.removeFromDash = (req, res) => {
-  const { courseIndex } = req.body;
+  const { courseId } = req.body;
   if (req.session.selectedCourses) {
-    req.session.selectedCourses.splice(courseIndex, 1);
+    if (courseId in req.session.selectedCourses) {
+      delete req.session.selectedCourses[courseId];
+      req.session.save(err => {
+        if (err) {
+          console.error("Error saving session:", err);
+          res.status(500).json({ success: false, error: "Failed to update session" });
+        } else {
+          res.json({ success: true });
+        }
+      });
+    } else {
+      res.status(404).json({ success: false, error: "Course not found" });
+    }
+  } else {
+    res.status(404).json({ success: false, error: "No courses in session" });
   }
-  res.json({ success: true });
 };
 
 module.exports.addToDash = async (req, res) => {
@@ -78,9 +91,9 @@ module.exports.addToDash = async (req, res) => {
     throw new Error("Course not found");
   }
   if (!req.session.selectedCourses) {
-    req.session.selectedCourses = [];
+    req.session.selectedCourses = {};
   }
-  req.session.selectedCourses.push(course);
+  req.session.selectedCourses[course._id] = course;
   res.json(course);
 };
 
@@ -108,7 +121,7 @@ module.exports.search = async (req, res) => {
 module.exports.generateSchedule = async (req, res) => {
   try {
     console.log("Session data:", req.session);
-    if (!req.body.courses) {
+    if (!req.body.courses || req.body.courses.length === 0) {
       console.error("No courses in request");
       req.flash("error", "No courses provided");
       return res.status(400).json({ error: "No courses provided" });
