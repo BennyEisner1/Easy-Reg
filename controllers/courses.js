@@ -1,7 +1,10 @@
 const Course = require("../models/course");
+const User = require("../models/user");
 const ExpressError = require("../utils/ExpressError");
 const findMaxWeightedSchedule = require("../public/javascripts/algorithm.js");
-const getRatingColor = require("../utils/getRatingColor"); // Ensure this path is correct
+const getRatingColor = require("../utils/getRatingColor"); 
+const { isLoggedIn } = require('../middleware'); 
+
 
 module.exports.index = async (req, res) => {
   const courses = await Course.find({});
@@ -63,45 +66,60 @@ module.exports.delete = async (req, res) => {
   res.redirect("/courses");
 };
 
-module.exports.removeFromDash = (req, res) => {
-  const { courseId } = req.body;
-  if (req.session.selectedCourses) {
-    if (courseId in req.session.selectedCourses) {
-      delete req.session.selectedCourses[courseId];
-      req.session.save(err => {
-        if (err) {
-          console.error("Error saving session:", err);
-          res.status(500).json({ success: false, error: "Failed to update session" });
-        } else {
-          res.json({ success: true });
-        }
-      });
-    } else {
-      res.status(404).json({ success: false, error: "Course not found" });
+module.exports.removeFromDash = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  } else {
-    res.status(404).json({ success: false, error: "No courses in session" });
+
+    // Remove the course from the user's dashboardCourses
+    user.dashboardCourses = user.dashboardCourses.filter(id => !id.equals(courseId));
+    await user.save();
+
+    res.json({ message: "Course removed from dashboard" });
+  } catch (error) {
+    console.error("Error removing course from dashboard:", error);
+    res.status(500).json({ message: "Error removing course from dashboard", error: error.message });
   }
 };
 
 module.exports.addToDash = async (req, res) => {
-  const { courseId } = req.body;
-  const course = await Course.findById(courseId);
-  if (!course) {
-    throw new Error("Course not found");
+  try {
+      const { courseId } = req.body;
+      const user = await User.findById(req.user._id);
+      const course = await Course.findById(courseId);
+
+      if (!course) {
+          return res.status(404).json({ message: "Course not found" });
+      }
+
+      if (!user.dashboardCourses.includes(courseId)) {
+          user.dashboardCourses.push(courseId);
+          await user.save();
+      }
+
+      res.json({ message: "Course added to dashboard", course });
+  } catch (error) {
+      res.status(500).json({ message: "Error adding course to dashboard", error: error.message });
   }
-  if (!req.session.selectedCourses) {
-    req.session.selectedCourses = {};
-  }
-  req.session.selectedCourses[course._id] = course;
-  res.json(course);
 };
 
 module.exports.optimizer = async (req, res) => {
-  const selectedCourses = req.session.selectedCourses || [];
-  res.render("courses/optimizer", { selectedCourses });
-};
-
+    try {
+        const user = await User.findById(req.user._id).populate('dashboardCourses');
+        const selectedCourses = {};
+        user.dashboardCourses.forEach(course => {
+            selectedCourses[course._id] = course;
+        });
+        res.render('courses/optimizer', { selectedCourses });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("An error occurred while loading the optimizer");
+    }
+}
 module.exports.search = async (req, res) => {
   const query = req.query.q;
   let results;
@@ -117,19 +135,18 @@ module.exports.search = async (req, res) => {
   });
   res.json(results);
 };
-
-module.exports.generateSchedule = async (req, res) => {
+exports.generateSchedule = async (req, res) => {
   try {
-    console.log("Session data:", req.session);
-    if (!req.body.courses || req.body.courses.length === 0) {
-      console.error("No courses in request");
-      req.flash("error", "No courses provided");
-      return res.status(400).json({ error: "No courses provided" });
+    const { courses, isRandomized } = req.body;
+    
+    // Check if courses is an object and convert it to an array if necessary
+    const coursesArray = Array.isArray(courses) ? courses : Object.values(courses);
+    
+    if (!coursesArray || coursesArray.length === 0) {
+      return res.status(400).json({ error: 'No courses provided' });
     }
-    console.log("Received request:", req.body);
-    const courses = req.body.courses;
-    console.log("Courses:", courses);
-    const parsedCourses = courses.map((course) => {
+
+    const parsedCourses = coursesArray.map((course) => {
       if (!course.times || course.times.length === 0) {
         throw new Error(`Course ${course.title} is missing times`);
       }
@@ -143,25 +160,10 @@ module.exports.generateSchedule = async (req, res) => {
       };
     });
 
-    console.log("Parsed Courses with times:", parsedCourses);
-    const { schedule, maxWeight } = findMaxWeightedSchedule(parsedCourses);
-    const scheduleResult = [];
-    schedule.forEach((item) => {
-      const course = parsedCourses[item.courseIndex];
-      course.times.forEach((time) => {
-        scheduleResult.push({
-          courseIndex: item.courseIndex,
-          start: time.start_time,
-          end: time.end_time,
-          day: time.day,
-        });
-      });
-    });
-    console.log("Generated schedule:", scheduleResult);
-    res.json({ schedule: scheduleResult });
+    const { schedule, maxWeight } = findMaxWeightedSchedule(parsedCourses, isRandomized);
+    res.json({ schedule, maxWeight });
   } catch (error) {
-    console.error("Error generating schedule:", error);
-    req.flash("error", "Internal Server Error");
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error generating schedule:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };

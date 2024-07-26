@@ -1,19 +1,9 @@
 <% layout('layouts/boilerplate') %>
 <div class="container optimizer-container">
-  <h1 class="scheduler-heading">Schedule Optimizer</h1>
-  <form id="course-selection-form">
-    <div id="course-list">
-      <% Object.values(selectedCourses).forEach((course) => { %>
-        <div class="course-card" data-course-id="<%= course._id %>">
-          <p class="course-title"><%= course.title %> <%= course.course_level %></p>
-          <button type="button" class="remove-course-btn btn btn-danger" data-course-id="<%= course._id %>">Remove</button>
-        </div>
-      <% }) %>
-    </div>
-    <button type="button" id="generate-schedule-btn" class="btn btn-primary generate-schedule-btn">Generate Best Schedule</button>
-  </form>
+  <h1 id="page-header" class="scheduler-heading">Schedule Optimizer</h1>
+  <button type="button" id="generate-schedule-btn" class="btn btn-primary generate-schedule-btn">Generate Best Schedule</button>
+  
   <div id="schedule-result" class="mt-4">
-    <h2>Generated Schedule</h2>
     <div id="schedule-grid" class="schedule-grid">
       <div class="schedule-header"></div>
       <% ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].forEach(day => { %>
@@ -27,15 +17,22 @@
       <% }) %>
     </div>
   </div>
+
+  <div id="course-selection-form" class="mt-4">
+    <h3>Selected Courses</h3>
+    <div class="course-cards-container">
+      <% Object.values(selectedCourses).forEach((course) => { %>
+        <div class="course-card" data-course-id="<%= course._id %>">
+          <p class="course-title"><%= course.title %> <%= course.course_level %></p>
+          <button type="button" class="remove-course-btn btn btn-danger" data-course-id="<%= course._id %>">Remove</button>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+  
   <!-- Embed selected courses data in a script tag -->
   <script id="selectedCoursesData" type="application/json">
     <%- JSON.stringify(selectedCourses) %>
   </script>
 </div>
 <script src="/javascripts/optimizer.js"></script>
-<script>
-  console.log('Inline script running');
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('Inline script: DOM fully loaded and parsed');
-  });
-</script>

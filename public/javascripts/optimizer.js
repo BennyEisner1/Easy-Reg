@@ -1,4 +1,7 @@
-let selectedCoursesElement = document.getElementById('selectedCoursesData');
+let globalColorMap = {};
+let isFirstSchedule = true;
+let selectedCourses;
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded and parsed');
 
@@ -11,133 +14,241 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('selectedCoursesData content:', selectedCoursesData.textContent);
 
     try {
-        let selectedCourses = JSON.parse(selectedCoursesData.textContent);
+        selectedCourses = JSON.parse(selectedCoursesData.textContent);
         console.log('Selected Courses:', selectedCourses);
-
-        // Remove course event
-        document.querySelectorAll('.remove-course-btn').forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const courseId = event.target.getAttribute('data-course-id');
-                
-                try {
-                    const response = await fetch('/courses/remove-course', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ courseId: courseId }),
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-
-                    // Remove the course from the local object
-                    delete selectedCourses[courseId];
-                    
-                    // Remove the course card from the DOM
-                    event.target.closest('.course-card').remove();
-
-                    // Update the embedded JSON data
-                    selectedCoursesData.textContent = JSON.stringify(selectedCourses);
-
-                    console.log('Updated Selected Courses:', selectedCourses);
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error: ' + error.message);
-                }
-            });
-        });
-
-        document.getElementById('generate-schedule-btn').addEventListener('click', async () => {
-            console.log('Generate Best Schedule button clicked');
-        
-            try {
-                const response = await fetch('/courses/generate-schedule', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ courses: Object.values(selectedCourses) }),
-                });
-        
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.statusText);
-                }
-        
-                const result = await response.json();
-                console.log('Result:', result);
-        
-                // Clear previous schedule
-                const scheduleGrid = document.getElementById('schedule-grid');
-                scheduleGrid.querySelectorAll('.schedule-course').forEach(course => course.remove());
-        
-                const courseColorMap = {};
-        
-                result.schedule.forEach((item) => {
-                    console.log('Schedule item:', item);
-        
-                    if (item.start && item.end && item.day) {
-                        const startStr = item.start.toString().padStart(4, '0');
-                        const endStr = item.end.toString().padStart(4, '0');
-                        console.log(`Parsed times - start: ${startStr}, end: ${endStr}`);
-        
-                        const startHour = parseInt(startStr.slice(0, 2), 10);
-                        const startMinute = parseInt(startStr.slice(2, 4), 10);
-                        const endHour = parseInt(endStr.slice(0, 2), 10);
-                        const endMinute = parseInt(endStr.slice(2, 4), 10);
-        
-                        console.log(`Parsed time details - startHour: ${startHour}, startMinute: ${startMinute}, endHour: ${endHour}, endMinute: ${endMinute}, day: ${item.day}`);
-        
-                        if (!isNaN(startHour) && !isNaN(startMinute) && !isNaN(endHour) && !isNaN(endMinute)) {
-                            const startIndex = (startHour - 8) * 2 + (startMinute === 0 ? 0 : 1);
-                            const endIndex = (endHour - 8) * 2 + (endMinute === 0 ? 0 : 1) + 1;
-        
-                            console.log(`startIndex: ${startIndex}, endIndex: ${endIndex}`);
-        
-                            if (startIndex >= 0 && endIndex > startIndex) {
-                                const courseCell = document.createElement('div');
-                                courseCell.className = 'schedule-course';
-                                
-                                const course = Object.values(selectedCourses)[item.courseIndex];
-                                courseCell.innerHTML = `<span>${course.title} ${course.course_level}</span>`;
-                                
-                                courseCell.style.gridRow = `${startIndex + 2} / ${endIndex + 2}`;
-                                courseCell.style.gridColumn = `${getDayColumn(item.day.trim())} / ${getDayColumn(item.day.trim()) + 1}`;
-                                courseCell.style.backgroundColor = getColor(item.courseIndex, courseColorMap);
-        
-                                scheduleGrid.appendChild(courseCell);
-                            } else {
-                                console.error('Invalid time index for schedule item:', item);
-                            }
-                        } else {
-                            console.error('Invalid time format for schedule item:', item);
-                        }
-                    } else {
-                        console.error('Schedule item is missing start, end, or day:', item);
-                    }
-                });
-        
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
-            }
-        });
-        
-        function getDayColumn(day) {
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-            return days.indexOf(day) + 2; // Column starts from 2 (1 for time)
-        }
-
-        // Function to get color for each course
-        function getColor(courseIndex, courseColorMap) {
-            const colors = ['#1abc9c', '#3498db', '#e74c3c', '#9b59b6', '#f39c12', '#d35400', '#2ecc71', '#e67e22', '#34495e', '#e91e63'];
-            if (!courseColorMap[courseIndex]) {
-                courseColorMap[courseIndex] = colors[Object.keys(courseColorMap).length % colors.length];
-            }
-            return courseColorMap[courseIndex];
-        }
     } catch (error) {
         console.error('Error parsing JSON:', error);
+        return;
     }
+
+    addEventListeners();
+
+    const generateScheduleBtn = document.getElementById('generate-schedule-btn');
+    const pageHeader = document.getElementById('page-header');
+
+    generateScheduleBtn.addEventListener('click', generateSchedule);
 });
+
+function addEventListeners() {
+    // Add click event listeners to course cards
+    document.querySelectorAll('.course-card').forEach(card => {
+        card.addEventListener('click', (event) => {
+            if (!event.target.classList.contains('remove-course-btn')) {
+                const courseId = event.currentTarget.dataset.courseId;
+                window.location.href = `/courses/${courseId}`;
+            }
+        });
+    });
+
+    // Add click event listeners to remove buttons
+    document.querySelectorAll('.remove-course-btn').forEach(button => {
+        button.addEventListener('click', removeCourse);
+    });
+}
+
+async function removeCourse(event) {
+    event.stopPropagation();
+    
+    const courseId = event.target.getAttribute('data-course-id');
+    
+    try {
+        const response = await fetch('/courses/remove-course', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ courseId: courseId }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+
+        delete selectedCourses[courseId];
+        event.target.closest('.course-card').remove();
+        document.getElementById('selectedCoursesData').textContent = JSON.stringify(selectedCourses);
+
+        console.log('Updated Selected Courses:', selectedCourses);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+async function generateSchedule() {
+    console.log(isFirstSchedule ? 'Generate Best Schedule button clicked' : 'Generate New Schedule button clicked');
+
+    try {
+        const response = await fetch('/courses/generate-schedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                courses: selectedCourses,
+                isRandomized: !isFirstSchedule
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Network response was not ok');
+        }
+
+        const result = await response.json();
+        console.log('Result:', result);
+
+        displaySchedule(result.schedule);
+
+        const generateScheduleBtn = document.getElementById('generate-schedule-btn');
+        const pageHeader = document.getElementById('page-header');
+        const scheduledCourseIndices = new Set(result.schedule.map(item => item.courseIndex));
+        const hasConflicts = scheduledCourseIndices.size < Object.keys(selectedCourses).length;
+
+        generateScheduleBtn.textContent = hasConflicts ? 'Generate New Schedule' : 'Best Schedule (No Conflicts)';
+        isFirstSchedule = false;
+        pageHeader.textContent = 'EasyReg Optimized Schedule';
+
+        // Show the schedule
+        document.querySelector('.optimizer-container').classList.add('schedule-generated');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+function displaySchedule(schedule) {
+    // Clear previous schedule
+    const scheduleGrid = document.getElementById('schedule-grid');
+    scheduleGrid.querySelectorAll('.schedule-course').forEach(course => course.remove());
+
+    schedule.forEach((item) => {
+        if (item.start && item.end && item.day) {
+            const startStr = item.start.toString().padStart(4, '0');
+            const endStr = item.end.toString().padStart(4, '0');
+            
+            const startHour = parseInt(startStr.slice(0, 2), 10);
+            const startMinute = parseInt(startStr.slice(2, 4), 10);
+            const endHour = parseInt(endStr.slice(0, 2), 10);
+            const endMinute = parseInt(endStr.slice(2, 4), 10);
+
+            if (!isNaN(startHour) && !isNaN(startMinute) && !isNaN(endHour) && !isNaN(endMinute)) {
+                const startIndex = (startHour - 8) * 2 + (startMinute === 0 ? 0 : 1);
+                const endIndex = (endHour - 8) * 2 + (endMinute === 0 ? 0 : 1) + 1;
+
+                if (startIndex >= 0 && endIndex > startIndex) {
+                    const courseCell = document.createElement('div');
+                    courseCell.className = 'schedule-course';
+                    
+                    const course = Object.values(selectedCourses)[item.courseIndex];
+                    courseCell.innerHTML = `<span>${course.title} ${course.course_level}</span>`;
+                    
+                    courseCell.style.gridRow = `${startIndex + 2} / ${endIndex + 2}`;
+                    courseCell.style.gridColumn = `${getDayColumn(item.day.trim())} / ${getDayColumn(item.day.trim()) + 1}`;
+                    courseCell.style.backgroundColor = getColor(course._id);
+
+                    courseCell.style.cursor = 'pointer';
+                    courseCell.addEventListener('click', () => {
+                        window.location.href = `/courses/${course._id}`;
+                    });
+
+                    scheduleGrid.appendChild(courseCell);
+                }
+            }
+        }
+    });
+}
+
+function getDayColumn(day) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    return days.indexOf(day) + 2; // Column starts from 2 (1 for time)
+}
+
+function getColor(courseId) {
+    const colors = ['#1abc9c', '#3498db', '#e74c3c', '#9b59b6', '#f39c12', '#d35400', '#2ecc71', '#e67e22', '#34495e', '#e91e63'];
+    if (!globalColorMap[courseId]) {
+        globalColorMap[courseId] = colors[Object.keys(globalColorMap).length % colors.length];
+    }
+    return globalColorMap[courseId];
+}
+
+async function addCourseToDashboard(courseId) {
+    try {
+        const response = await fetch('/courses/add-to-dashboard', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ courseId }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add course to dashboard');
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+        
+        // Update the selectedCourses object and UI
+        selectedCourses[courseId] = result.course;
+        updateCourseCards();
+    } catch (error) {
+        console.error('Error adding course to dashboard:', error);
+        alert('Error adding course to dashboard: ' + error.message);
+    }
+}
+
+async function removeCourse(event) {
+    event.stopPropagation();
+    
+    const courseId = event.target.getAttribute('data-course-id');
+    
+    try {
+        const response = await fetch('/courses/remove-course', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ courseId: courseId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to remove course');
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+
+        delete selectedCourses[courseId];
+        event.target.closest('.course-card').remove();
+        document.getElementById('selectedCoursesData').textContent = JSON.stringify(selectedCourses);
+
+        console.log('Updated Selected Courses:', selectedCourses);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+function updateCourseCards() {
+    const courseCardsContainer = document.querySelector('.course-cards-container');
+    courseCardsContainer.innerHTML = '';
+
+    Object.values(selectedCourses).forEach((course) => {
+        const courseCard = document.createElement('div');
+        courseCard.className = 'course-card';
+        courseCard.dataset.courseId = course._id;
+        courseCard.innerHTML = `
+            <p class="course-title">${course.title} ${course.course_level}</p>
+            <button type="button" class="remove-course-btn btn btn-danger" data-course-id="${course._id}">Remove</button>
+        `;
+        courseCardsContainer.appendChild(courseCard);
+    });
+
+    // Update the selectedCoursesData
+    document.getElementById('selectedCoursesData').textContent = JSON.stringify(selectedCourses);
+
+    // Re-add event listeners
+    addEventListeners();
+}

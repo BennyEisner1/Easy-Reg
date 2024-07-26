@@ -8,8 +8,9 @@ router.get("/", catchAsync(courses.index));
 router.get("/search", catchAsync(courses.search));
 router.get("/optimizer", isLoggedIn, catchAsync(courses.optimizer));
 router.post("/generate-schedule", catchAsync(courses.generateSchedule));
+
 router.post("/add-to-dashboard", isLoggedIn, catchAsync(courses.addToDash));
-router.post("/remove-course", courses.removeFromDash);
+router.post("/remove-course", isLoggedIn, catchAsync(courses.removeFromDash));
 router.get("/new", isLoggedIn, courses.renderNew);
 router.post("/", isLoggedIn, validateCourse, catchAsync(courses.createCourse));
 router.get("/:id", catchAsync(courses.showCourse));

@@ -18,7 +18,7 @@
                         <p class="card-text flex-grow-1"><%= course.description %></p>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-custom add-to-dashboard" data-course-id="<%= course._id %>">Add to Dashboard</button>
+                        <button class="btn btn-custom add-to-dashboard add-to-dashboard-btn" data-course-id="<%= course._id %>">Add to Dashboard</button>
                     </div>
                 </div>
             </div>
@@ -26,12 +26,6 @@
     </div>
 </div>
 
-<div class="container mt-5">
-    <h1 class="mb-4">Selected Courses</h1>
-    <ul id="selected-courses-list" class="list-group">
-        <!-- Selected courses will be dynamically inserted here -->
-    </ul>
-</div>
 
 <script src="/javascripts/search.js"></script>
 <script src="/javascripts/optimizer.js"></script>

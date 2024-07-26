@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 },
                                 body: JSON.stringify({ courseId: course._id })
                             });
+                            if (response.status === 401) {
+                                // User is not authenticated, redirect to login page
+                                window.location.href = '/login';
+                                return;
+                            }
                             if (!response.ok) {
                                 throw new Error('Network response was not ok');
                             }
