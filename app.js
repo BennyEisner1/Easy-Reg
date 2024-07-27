@@ -26,7 +26,7 @@ const reviewRoutes = require("./routes/reviews");
 const userRoutes = require("./routes/users");
 const { he } = require("@faker-js/faker");
 
-const dbUrl = proccess.env.DB_URL || "mongodb://127.0.0.1:27017/EasyReg";
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/EasyReg";
 mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
@@ -135,6 +135,9 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error", { err });
 });
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
+
+const port = process.env.port || 3000;
+
+app.listen(port, () => {
+  console.log( `Serving port ${port}`);
 });
