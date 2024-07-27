@@ -26,7 +26,7 @@ const reviewRoutes = require("./routes/reviews");
 const userRoutes = require("./routes/users");
 const { he } = require("@faker-js/faker");
 
-const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/EasyReg";
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/EasyReg";
 mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
