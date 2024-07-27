@@ -1,31 +1,30 @@
 <% layout('layouts/boilerplate') %>
-<div class="container mt-5">
-    <h1 class="mb-4" id="courses-heading">All Courses</h1>
-    <form id="search-form" class="form-inline my-2 my-lg-0">
-        <div class="input-group" style="width: 100%;">
-            <input class="form-control" type="search" placeholder="Search" aria-label="Search" id="search-input" name="q" style="width: 90%;">
-        </div>
-    </form>
-</div>
 
 <div class="container mt-5">
+    <h1 class="mb-4" id="courses-heading"><%= department ? `${department} Courses` : 'All Courses' %></h1>
+    <div class="search-container">
+        <form id="search-form">
+            <input class="form-control" type="search" placeholder="Search courses..." aria-label="Search" id="search-input" name="q">
+            <i class="fas fa-search search-icon"></i>
+        </form>
+    </div>     
     <div class="row" id="courses-container">
         <% courses.forEach(course => { %>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 d-flex flex-column course-item" data-id="<%= course._id %>">
-                    <div class="card-body flex-grow-1 d-flex flex-column">
-                        <h5 class="card-title"><%= course.title %> <%= course.course_level %></h5>
-                        <p class="card-text flex-grow-1"><%= course.description %></p>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-custom add-to-dashboard add-to-dashboard-btn" data-course-id="<%= course._id %>">Add to Dashboard</button>
+            <% if (!userDashboardCourses.includes(course._id.toString())) { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 d-flex flex-column course-item" data-id="<%= course._id %>">
+                        <div class="card-body flex-grow-1 d-flex flex-column">
+                            <h5 class="card-title"><%= course.title %> <%= course.course_level %></h5>
+                            <p class="card-text flex-grow-1"><%= course.description %></p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-custom add-to-dashboard-btn" data-course-id="<%= course._id %>">Add to Dashboard</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <% } %>
         <% }) %>
     </div>
 </div>
 
-
 <script src="/javascripts/search.js"></script>
-<script src="/javascripts/optimizer.js"></script>

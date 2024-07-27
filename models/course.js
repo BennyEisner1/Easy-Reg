@@ -10,6 +10,7 @@ const Schema = mongoose.Schema;
       location: String,
       student_rating: Number,
       course_level: Number,
+      department: { type: String },
       times: [
           {
               start_time: String,
@@ -37,4 +38,6 @@ const Schema = mongoose.Schema;
     });
   }
 });
+
+
  module.exports = mongoose.model('Course', CourseSchema);

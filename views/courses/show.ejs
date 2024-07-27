@@ -1,75 +1,77 @@
 <% layout('layouts/boilerplate') %>
-<% var additionalStylesheet = '/stylesheets/show.css'; %>
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0"><%= course.title %> <%= course.course_level %></h1>
-        <% if (currentUser && course.author.equals(currentUser._id)) { %>
-        <div>
-            <a href="/courses/<%= course._id %>/edit" class="btn-link">Edit</a>
-            <form action="/courses/<%= course._id %>?_method=DELETE" method="POST" class="d-inline-block">
-                <button class="btn btn-danger">Delete</button>
-            </form>
-        </div>
-        <% } %>
-    </div>
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="card-title"><%= course.title %> <%= course.course_level %></h1>
+                        <% if (currentUser && course.author && course.author.equals(currentUser._id)) { %>
+                            <div>
+                                <a href="/courses/<%= course._id %>/edit" class="btn btn-info">Edit</a>
+                                <form class="d-inline" action="/courses/<%= course._id %>?_method=DELETE" method="POST">
+                                    <button class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        <% } %>
+                    </div>
+                    <h5 class="card-subtitle mb-2 text-muted">Professor: <%= course.professor %></h5>
+                    <p class="card-text"><%= course.description %></p>
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item">Credits: <%= course.credits %></li>
+                        <li class="list-group-item">Location: <%= course.location %></li>
+                        <li class="list-group-item">Student Rating: <%= course.student_rating %></li>
+                        <li class="list-group-item">Department: <%= course.department %></li>
+                    </ul>
+                    <h4 class="mt-4">Course Times:</h4>
+                    <ul class="list-group list-group-flush">
+                        <% course.times.forEach(function(time) { %>
+                            <li class="list-group-item">
+                                <%= time.day %>: <%= time.start_time %> - <%= time.end_time %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
 
-    <p class="lead mb-4"><%= course.description %></p>
-    
-    <div class="show-card mb-4">
-        <div class="show-card-header">
-            <h4>Course Information</h4>
-        </div>
-        <div class="show-card-body">
-            <p><strong>Professor:</strong> <%= course.professor %></p>
-            <p><strong>Credits:</strong> <%= course.credits %></p>
-            <p><strong>Student Rating:</strong> <%= course.student_rating %></p>
-            <p><strong>Course Level:</strong> <%= course.course_level %></p>
-            <p><strong>Location:</strong> <%= course.location %></p>
-        </div>
-    </div>
+            <% if (currentUser) { %>
+                <div class="mb-3">
+                    <h2>Leave a Review</h2>
+                    <form action="/courses/<%= course._id %>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label" for="rating">Rating</label>
+                            <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="body">Review Text</label>
+                            <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+                        <button class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            <% } %>
 
-    <div class="show-card mb-4">
-        <div class="show-card-header">
-            <h4>Time Slots</h4>
-        </div>
-        <div class="show-card-body">
-            <% const days = course.times.map(time => time.day).join(', '); %>
-            <% if (course.times.length > 0) { %>
-                <p><strong>Days:</strong> <%= days %></p>
-                <p><strong>Time:</strong> <%= course.times[0].start_time %> - <%= course.times[0].end_time %></p>
+            <% if (course.reviews.length > 0) { %>
+                <h2>Reviews</h2>
+                <% for(let review of course.reviews) { %>
+                    <div class="card mb-3 ">
+                        <div class="card-body">
+                            <h5 class="card-title">Rating: <%= review.rating %></h5>
+                            <p class="card-text">Review: <%= review.body %></p>
+                            <% if (currentUser && review.author.equals(currentUser._id)) { %>
+                                <form action="/courses/<%= course._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <p>No reviews yet. Be the first to leave a review!</p>
             <% } %>
         </div>
     </div>
-
-
-    <% if (currentUser) { %>
-    <div class="show-card mb-4">
-        <div class="show-card-header">
-            <h4>Add a Review</h4>
-        </div>
-        <div class="show-card-body">
-            <form action="/courses/<%= course._id %>/reviews" method="POST">
-                <div class="form-group">
-                    <label for="rating">Rating</label>
-                    <input type="number" id="rating" name="review[rating]" class="form-control" min="1" max="5">
-                </div>
-                <div class="form-group">
-                    <label for="body">Review</label>
-                    <textarea id="body" name="review[body]" class="form-control"></textarea>
-                </div>
-                <button class="btn btn-custom mt-3">Add Review</button>
-            </form>
-        </div>
-    </div>
-    <% } %>
-    
-    <h3>Reviews</h3>
-    <ul class="list-group pb-4">
-        <% course.reviews.forEach(review => { %>
-        <li class="list-group-item">
-            <p><strong>Rating:</strong> <%= review.rating %></p>
-            <p><%= review.body %></p>
-        </li>
-        <% }) %>
-    </ul>
 </div>

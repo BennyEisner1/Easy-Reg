@@ -11,12 +11,12 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
-
+const mongoSanatize = require('express-mongo-sanitize');
 const courseRoutes = require('./routes/courses');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 
-mongoose.connect('mongodb://127.0.0.1:27017/scheduler');
+mongoose.connect('mongodb://127.0.0.1:27017/EasyReg');
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -31,11 +31,12 @@ app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
 app.use(bodyParser.json());
-
+app.use(mongoSanatize());
 const sessionConfig = {
   secret: 'tempsecret',
   resave: false,
