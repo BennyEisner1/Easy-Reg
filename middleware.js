@@ -1,3 +1,4 @@
+const { body, validationResult } = require('express-validator');
 const { courseSchema, reviewSchema } = require("./schemas.js");
 const ExpressError = require("./utils/ExpressError");
 const Course = require("./models/course");
@@ -18,26 +19,45 @@ module.exports.storeReturnTo = (req, res, next) => {
   next();
 };
 
-module.exports.validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-    if(error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
-    }
-}
-
-module.exports.validateCourse = (req, res, next) => {
-  const { error } = courseSchema.validate(req.body);
-  if (error) {
-    const msg = error.details.map(el => el.message).join(',');
-    throw new ExpressError(msg, 400);
-  } else {
-    next();
+module.exports.handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorMessages = errors.array().map(error => error.msg);
+    throw new ExpressError(errorMessages.join(', '), 400);
   }
+  next();
 };
 
+module.exports.validateReview = [
+  body('review.rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+  body('review.body').trim().notEmpty().withMessage('Review body cannot be empty').escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const msg = errors.array().map(err => err.msg).join(', ');
+      throw new ExpressError(msg, 400);
+    } else {
+      next();
+    }
+  }
+];
+
+module.exports.validateCourse = [
+  body('course.title').trim().notEmpty().withMessage('Course title cannot be empty').escape(),
+  body('course.description').trim().notEmpty().withMessage('Course description cannot be empty').escape(),
+  body('course.department').trim().notEmpty().withMessage('Department cannot be empty').escape(),
+  body('course.code').trim().notEmpty().withMessage('Course code cannot be empty').escape(),
+  body('course.student_rating').optional().isFloat({ min: 0, max: 5 }).withMessage('Student rating must be between 0 and 5'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const msg = errors.array().map(err => err.msg).join(', ');
+      throw new ExpressError(msg, 400);
+    } else {
+      next();
+    }
+  }
+];
 module.exports.isAuthor = async (req, res, next) => {
   const { id } = req.params;
   const course = await Course.findById(id);
@@ -47,3 +67,7 @@ module.exports.isAuthor = async (req, res, next) => {
   }
   next();
 };
+
+module.exports.sanitizeUserInput = [
+  body('*').trim().escape()
+];

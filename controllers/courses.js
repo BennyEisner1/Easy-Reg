@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Course = require("../models/course");
 const User = require("../models/user");
+const Review = require("../models/review.js");
 const ExpressError = require("../utils/ExpressError");
 const findMaxWeightedSchedule = require("../public/javascripts/algorithm.js");
 const getRatingColor = require("../utils/getRatingColor"); 
@@ -174,6 +175,7 @@ module.exports.addToDash = async (req, res) => {
 
       res.json({ message: "Course added to dashboard", course });
   } catch (error) {
+      // req.flash("error", "You must be logged in to add courses to your dashboard");
       res.status(500).json({ message: "Error adding course to dashboard", error: error.message });
   }
 };
