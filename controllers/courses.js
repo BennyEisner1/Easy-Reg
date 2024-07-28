@@ -209,51 +209,49 @@ module.exports.optimizer = async (req, res) => {
     res.status(500).send("An error occurred while loading the optimizer");
   }
 };
-
 module.exports.search = async (req, res) => {
   const query = req.query.q;
   const department = req.query.department;
 
   let searchCriteria = {};
   if (query) {
-    searchCriteria.title = { $regex: new RegExp(query, "i") };
+    searchCriteria.$or = [
+      { title: { $regex: new RegExp(query, "i") } },
+      { description: { $regex: new RegExp(query, "i") } },
+    ];
   }
   if (department) {
     searchCriteria.department = department;
   }
 
-  let results;
   try {
-    results = await Course.find(searchCriteria);
-  } catch (error) {
-    console.error("Error in database query:", error);
-    return res.status(500).json({ error: "Database query failed" });
-  }
+    let results = await Course.find(searchCriteria);
 
-  let userDashboardCourses = [];
-
-  if (req.user) {
-    try {
+    let userDashboardCourses = [];
+    if (req.user) {
       const user = await User.findById(req.user._id).populate(
         "dashboardCourses"
       );
       userDashboardCourses = user.dashboardCourses.map((course) =>
         course._id.toString()
       );
-    } catch (error) {
-      console.error("Error fetching user dashboard courses:", error);
     }
+
+    results = results.filter(
+      (course) => !userDashboardCourses.includes(course._id.toString())
+    );
+
+    results.forEach((course) => {
+      course.ratingColor = getRatingColor(course.student_rating);
+    });
+
+    res.json(results);
+  } catch (error) {
+    console.error("Error in search:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while searching courses" });
   }
-
-  results = results.filter(
-    (course) => !userDashboardCourses.includes(course._id.toString())
-  );
-
-  results.forEach((course) => {
-    course.ratingColor = getRatingColor(course.student_rating);
-  });
-
-  res.json(results);
 };
 
 module.exports.generateSchedule = async (req, res) => {
@@ -292,5 +290,27 @@ module.exports.generateSchedule = async (req, res) => {
     res
       .status(500)
       .json({ error: "Internal server error", details: error.message });
+  }
+};
+
+module.exports.allCourses = async (req, res) => {
+  try {
+    const allCourses = await Course.find({});
+    let userDashboardCourses = [];
+
+    if (req.user) {
+      const user = await User.findById(req.user._id).populate(
+        "dashboardCourses"
+      );
+      userDashboardCourses = user.dashboardCourses.map((course) =>
+        course._id.toString()
+      );
+    }
+
+    res.render("courses/all-courses", { allCourses, userDashboardCourses });
+  } catch (error) {
+    console.error("Error in allCourses:", error);
+    req.flash("error", "An error occurred while fetching courses");
+    res.redirect("/");
   }
 };

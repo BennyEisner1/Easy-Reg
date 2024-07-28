@@ -1,0 +1,42 @@
+<% layout('layouts/boilerplate') %>
+
+    <div class="container mt-5">
+        <h1 class="mb-4" id="courses-heading">All Courses</h1>
+        <div class="search-container">
+            <form id="search-form">
+                <input class="form-control" type="search" placeholder="Search all courses..." aria-label="Search"
+                    id="search-input" name="q">
+                <i class="fas fa-search search-icon"></i>
+            </form>
+        </div>
+        <div class="row" id="courses-container">
+            <% allCourses.forEach(course=> { %>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 d-flex flex-column course-item" data-id="<%= course._id %>">
+                        <div class="card-body flex-grow-1 d-flex flex-column">
+                            <h5 class="card-title">
+                                <%= course.title %>
+                                    <%= course.course_level %>
+                            </h5>
+                            <p class="card-text flex-grow-1">
+                                <%= course.description %>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">Department: <%= course.department %></small>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <% if (!userDashboardCourses.includes(course._id.toString())) { %>
+                                <button class="btn btn-custom add-to-dashboard-btn"
+                                    data-course-id="<%= course._id %>">Add to Dashboard</button>
+                                <% } else { %>
+                                    <button class="btn btn-secondary" disabled>Already in Dashboard</button>
+                                    <% } %>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+    </div>
+
+    <script src="/javascripts/search.js"></script>

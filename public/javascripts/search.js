@@ -63,11 +63,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function search(query) {
     const department = getCurrentDepartment();
-    fetch(
-      `/courses/search?q=${query}&department=${
-        encodeURIComponent(department) || ""
-      }`
-    )
+    const searchUrl = department
+      ? `/courses/search?q=${query}&department=${encodeURIComponent(
+          department
+        )}`
+      : `/courses/search?q=${query}`;
+
+    fetch(searchUrl)
       .then((response) => response.json())
       .then((data) => {
         coursesContainer.innerHTML = "";
