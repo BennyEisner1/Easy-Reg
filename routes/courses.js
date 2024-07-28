@@ -12,7 +12,6 @@ router.get("/optimizer", isLoggedIn, catchAsync(courses.optimizer));
 router.post("/generate-schedule", catchAsync(courses.generateSchedule));
 router.post("/add-to-dashboard", isLoggedIn, catchAsync(courses.addToDash));
 router.post("/remove-course", isLoggedIn, catchAsync(courses.removeFromDash));
-// router.get("/new", isLoggedIn, courses.renderNew);
 
 router
   .route("/:id")

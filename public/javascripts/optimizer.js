@@ -225,7 +225,7 @@ async function removeCourse(event) {
         document.getElementById('selectedCoursesData').textContent = JSON.stringify(selectedCourses);
 
         console.log('Updated Selected Courses:', selectedCourses);
-    } catch (error) {
+    } catch (error) { 
         console.error('Error:', error);
         alert('Error: ' + error.message);
     }
@@ -246,9 +246,6 @@ function updateCourseCards() {
         courseCardsContainer.appendChild(courseCard);
     });
 
-    // Update the selectedCoursesData
     document.getElementById('selectedCoursesData').textContent = JSON.stringify(selectedCourses);
-
-    // Re-add event listeners
     addEventListeners();
 }

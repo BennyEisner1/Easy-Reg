@@ -175,7 +175,7 @@ module.exports.addToDash = async (req, res) => {
 
       res.json({ message: "Course added to dashboard", course });
   } catch (error) {
-      // req.flash("error", "You must be logged in to add courses to your dashboard");
+      req.flash("error", "You must be logged in to add courses to your dashboard");
       res.status(500).json({ message: "Error adding course to dashboard", error: error.message });
   }
 };

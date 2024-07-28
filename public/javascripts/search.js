@@ -129,6 +129,21 @@ document.addEventListener("DOMContentLoaded", function () {
       timeout = setTimeout(later, wait);
     };
   }
+  
+  function showFlashMessage(message, type) {
+    const flashContainer = document.createElement('div');
+    flashContainer.className = `alert alert-${type} alert-dismissible fade show`;
+    flashContainer.role = 'alert';
+    flashContainer.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.querySelector('.container').insertBefore(flashContainer, document.querySelector('.container').firstChild);
+
+    setTimeout(() => {
+        flashContainer.remove();
+    }, 5000);
+}
 
   const debouncedSearch = debounce(search, 300);
 

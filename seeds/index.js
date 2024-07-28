@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Course = require('../models/course'); // Add this line
-
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/EasyReg";
 
 mongoose.connect(dbUrl, {
