@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
-const Course = require('../models/course'); // Add this line
+const Course = require("../models/course");
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/EasyReg";
 
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  serverSelectionTimeoutMS: 5000,
 });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
-  console.log("Database connected");
   seedDB()
     .then(() => {
       mongoose.connection.close();
@@ -530,14 +529,13 @@ const seedDB = async () => {
       const title = sample(courseTitles);
       const course_level = sample([100, 200, 300, 400, 500]);
 
-      // Check if a course with the same title and level already exists
       const existingCourse = await Course.findOne({ title, course_level });
       if (existingCourse) {
-        continue; // Skip creation of duplicate course
+        continue;
       }
 
       const course = new Course({
-        author: "669b453b6e86c4027274c83f", // Replace with actual author ID
+        author: "669b453b6e86c4027274c83f", //REMOVED COURSE AUTHOR FEATURE
         title,
         description: generateCourseDescription(title),
         professor: sample(professors),
@@ -550,7 +548,6 @@ const seedDB = async () => {
       });
 
       await course.save();
-      console.log("Seeding completed");
     }
   } catch (error) {
     console.error("Seeding failed:", error);

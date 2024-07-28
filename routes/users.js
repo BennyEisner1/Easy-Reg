@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { isLoggedIn, isAuthor, validateCourse, sanitizeUserInput } = require('../middleware');
+const {
+  isLoggedIn,
+  isAuthor,
+  validateCourse,
+  sanitizeUserInput,
+} = require("../middleware");
 const User = require("../models/user");
 const catchAsync = require("../utils/catchAsync");
 const passport = require("passport");

@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.message === "Course added to dashboard") {
           const courseCard = button.closest(".col-md-4");
           courseCard.remove();
-          // Removed the showMessage call
         } else {
           console.error("Failed to add course to dashboard");
         }
@@ -64,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function search(query) {
     const department = getCurrentDepartment();
-    console.log("Searching in department:", department);
     fetch(
       `/courses/search?q=${query}&department=${
         encodeURIComponent(department) || ""
@@ -72,7 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log("Received data:", data.length, "courses");
         coursesContainer.innerHTML = "";
         if (data.length === 0) {
           coursesContainer.innerHTML = "<p>No courses found.</p>";
@@ -129,21 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
       timeout = setTimeout(later, wait);
     };
   }
-  
-  function showFlashMessage(message, type) {
-    const flashContainer = document.createElement('div');
-    flashContainer.className = `alert alert-${type} alert-dismissible fade show`;
-    flashContainer.role = 'alert';
-    flashContainer.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    document.querySelector('.container').insertBefore(flashContainer, document.querySelector('.container').firstChild);
-
-    setTimeout(() => {
-        flashContainer.remove();
-    }, 5000);
-}
 
   const debouncedSearch = debounce(search, 300);
 
@@ -156,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
     search(searchInput.value);
   });
 
-  // Initial search to load all courses for the current department
   search("");
 
   document.addEventListener("click", function (e) {
